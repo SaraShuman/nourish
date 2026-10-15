@@ -1,0 +1,25 @@
+# Netlify configuration for Nourish (Vite + React SPA with a serverless proxy).
+
+[build]
+  # The repository root IS the app (package.json is here), so no base subdir.
+  command = "npm run build"
+  publish = "dist"
+  functions = "netlify/functions"
+
+[build.environment]
+  # Pin a modern Node for the build + functions runtime.
+  NODE_VERSION = "20"
+
+# The proxy function mounts itself at /api/off/* via `export const config`
+# in netlify/functions/off.ts, so requests keep their original path
+# (/api/off/...) and no explicit API redirect is needed here.
+
+# ── SPA fallback ──
+# React Router uses history routing (createBrowserRouter). Any direct visit or
+# refresh of a client route (e.g. /compare, /nearby) must serve index.html so
+# the app can render that route. This catch-all runs AFTER function routing,
+# so it never swallows /api/off/* requests.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
