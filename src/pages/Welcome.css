@@ -1,0 +1,352 @@
+/* ============================================================
+   Welcome — measurement-based v4
+   Reference: nourish-welcome-screen1.png (512×1148px → 390×874px)
+   ============================================================ */
+
+.welcome {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-canvas);
+  overflow-x: hidden;
+  /* Natural content height. The shell background matches canvas
+     so any remaining viewport space is invisible to users. */
+}
+
+/* ══ 1. LOGO  ══════════════════════════════════════════════ */
+
+.welcome__header {
+  display: flex;
+  justify-content: center;
+  padding-top: 19px;
+  flex-shrink: 0;
+}
+
+/* ══ 2. HEADLINE  ══════════════════════════════════════════
+   26px at 390px with 24px padding (342px usable) breaks into
+   3 lines: "Compare grocery" / "prices across" / "nearby stores."  */
+
+.welcome__headline {
+  margin-top: 14px;
+  padding: 0 24px;
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.2;
+  letter-spacing: -0.2px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+/* ══ 3. ILLUSTRATION  ══════════════════════════════════════
+   Full-width bleed, no vertical spacing. The container is
+   shorter than the image's natural height and clips the bottom
+   (overflow: hidden) for a hard crop at the base of the bag.   */
+
+.welcome__illustration {
+  margin: 0;
+  width: 100%;
+  flex-shrink: 0;
+  /* Clips ~10px more off the bottom than before */
+  height: 270px;
+  overflow: hidden;
+}
+
+.welcome__illustration-img {
+  display: block;
+  /* Scale ~5% past the viewport width for a true full bleed;
+     negative left margin keeps it centered. */
+  width: 105%;
+  margin-left: -2.5%;
+  height: auto;
+  /* Pull up to crop the transparent whitespace at the top. */
+  margin-top: -77px;
+}
+
+/* ══ 4. INPUT SECTION  ══════════════════════════════════════ */
+
+.welcome__input-section {
+  margin-top: 16px;
+  padding: 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.welcome__input-header {
+  /* Icon + text as a horizontal group, centered as a whole.
+     Text block stays left-aligned against the icon. */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  text-align: left;
+  gap: 12px;
+  /* Extra breathing room above the heading and below the subtext. */
+  padding: 16px 0;
+}
+
+.welcome__sparkle {
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+  border-radius: 50%;
+  background-color: #E6F2EC;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.welcome__input-label {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-ink);
+  line-height: 1.25;
+  cursor: text;
+}
+
+.welcome__input-subtext {
+  font-size: 16px;
+  color: var(--color-muted);
+  line-height: 1.3;
+  margin-top: 2px;
+}
+
+.welcome__input-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 81px;
+  background: var(--color-white);
+  border: 1.5px solid #CAC3B4;
+  /* Less rounded — softer rectangle instead of a full pill */
+  border-radius: 20px;
+  padding: 10px 10px 10px 20px;
+  cursor: text;
+  /* Soft light-green glow — blur radius diffuses the edges
+     (no spread, so it fades out rather than forming a hard ring) */
+  box-shadow: 0 0 16px 0 rgba(119, 191, 67, 0.25);
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+
+.welcome__input-row:focus-within {
+  border-color: var(--color-primary);
+  /* Stronger, still-soft glow on focus */
+  box-shadow: 0 0 20px 1px rgba(119, 191, 67, 0.35);
+}
+
+.welcome__textarea {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-family: var(--font-family);
+  font-size: 17px;
+  color: var(--color-ink);
+  line-height: 1.5;
+  resize: none;
+  outline: none;
+  height: 48px;
+  /* Hide the scrollbar by default; content still scrolls if it overflows */
+  overflow: hidden;
+}
+
+.welcome__textarea::placeholder {
+  /* Darkened to meet WCAG AA (~4.9:1 on white) */
+  color: #5E6B78;
+  font-size: 17px;
+}
+
+.welcome__mic {
+  width: 43px;
+  height: 43px;
+  min-width: 43px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  user-select: none;
+  /* Interactive button resets (was a div, now a real button) */
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 150ms ease, transform 100ms ease;
+  /* Anchor for the pulsing ring pseudo-element */
+  position: relative;
+}
+
+.welcome__mic:hover {
+  background-color: #005538;
+}
+
+.welcome__mic:active {
+  transform: scale(0.94);
+}
+
+.welcome__mic:focus-visible {
+  outline: 3px solid var(--color-fresh);
+  outline-offset: 3px;
+}
+
+/* Listening state — brighter fill signals active recording */
+.welcome__mic--listening {
+  background-color: #0A7D52;
+}
+
+/* Light-green thin keyline that pulses outward around the mic */
+.welcome__mic::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid var(--color-fresh); /* #77BF43 */
+  animation: mic-pulse 2s ease-out infinite;
+  pointer-events: none;
+}
+
+@keyframes mic-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+/* While listening, the pulse ring is faster and more prominent */
+.welcome__mic--listening::before {
+  border-color: #FFFFFF;
+  animation-duration: 1.1s;
+}
+
+/* Respect users who prefer reduced motion — show a static ring, no pulse */
+@media (prefers-reduced-motion: reduce) {
+  .welcome__mic::before {
+    animation: none;
+    transform: scale(1.15);
+    opacity: 0.5;
+  }
+  /* Listening still gets a visible (static) ring for non-motion users */
+  .welcome__mic--listening::before {
+    opacity: 0.8;
+  }
+}
+
+/* "Listening…" status label below the input */
+.welcome__listening {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  /* ~5.9:1 on canvas — passes WCAG AA */
+  color: var(--color-primary);
+}
+
+.welcome__listening-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #C0392B; /* recording red */
+  animation: listening-blink 1s ease-in-out infinite;
+}
+
+@keyframes listening-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.3; }
+}
+
+/* Voice error / unsupported message */
+.welcome__voice-error {
+  margin-top: 10px;
+  padding: 0 4px;
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.4;
+  /* #B23A2E on canvas ≈ 5.2:1 — passes WCAG AA */
+  color: #B23A2E;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome__listening-dot {
+    animation: none;
+  }
+}
+
+/* ══ 5. EXAMPLE LINK  ════════════════════════════════════════ */
+
+.welcome__example-row {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.welcome__example-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 6px 12px;
+  min-height: 44px;
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--color-primary);
+  text-decoration: none;
+  cursor: pointer;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 150ms ease;
+}
+
+.welcome__example-btn:hover {
+  background-color: rgba(0, 103, 71, 0.06);
+}
+
+.welcome__example-btn:focus-visible {
+  outline: 3px solid var(--color-fresh);
+  outline-offset: 2px;
+}
+
+/* ══ 6. CTA  ══════════════════════════════════════════════════
+   margin-top: auto pushes CTA to bottom of the 100dvh container.
+   This matches the reference layout precisely.                 */
+
+.welcome__cta {
+  margin-top: auto;
+  padding: 16px 20px 36px;
+  flex-shrink: 0;
+}
+
+.welcome__cta .primary-btn {
+  min-height: 61px;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Disabled: keep the dark-green look but ensure the label stays
+   legible and AA-compliant. A deeper green background + near-solid
+   white text yields ~7:1 contrast (passes WCAG AA). */
+.welcome__cta .primary-btn--disabled,
+.welcome__cta .primary-btn:disabled {
+  background-color: #0A5238 !important; /* slightly deeper green */
+  color: rgba(255, 255, 255, 0.9) !important;
+  box-shadow: none;
+  cursor: default;
+  pointer-events: none;
+}

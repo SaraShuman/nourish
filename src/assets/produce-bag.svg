@@ -1,0 +1,100 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 240" fill="none" aria-hidden="true" focusable="false" role="img">
+  <title>Fresh vegetables and fruit overflowing from a grocery bag</title>
+
+  <!-- ═══ GREEN GROUND / BACKGROUND ═══ -->
+  <!-- Wide soft green arc at bottom — the "grass/ground" plane -->
+  <ellipse cx="195" cy="235" rx="210" ry="38" fill="#C8E6B0" opacity="0.7"/>
+
+  <!-- ═══ BACKGROUND LEAFY GREENS (behind everything) ═══ -->
+  <!-- Large dark leaves fanning left -->
+  <ellipse cx="42" cy="148" rx="52" ry="30" fill="#2E7D32" transform="rotate(-55 42 148)"/>
+  <ellipse cx="28" cy="130" rx="46" ry="26" fill="#388E3C" transform="rotate(-40 28 130)"/>
+  <ellipse cx="62" cy="160" rx="50" ry="28" fill="#43A047" transform="rotate(-65 62 160)"/>
+
+  <!-- Large dark leaves fanning right -->
+  <ellipse cx="348" cy="148" rx="52" ry="30" fill="#2E7D32" transform="rotate(55 348 148)"/>
+  <ellipse cx="362" cy="130" rx="46" ry="26" fill="#388E3C" transform="rotate(40 362 130)"/>
+  <ellipse cx="328" cy="160" rx="50" ry="28" fill="#43A047" transform="rotate(65 328 160)"/>
+
+  <!-- Mid background leaves center-left -->
+  <ellipse cx="110" cy="110" rx="42" ry="22" fill="#4CAF50" transform="rotate(-30 110 110)"/>
+  <ellipse cx="90" cy="95" rx="38" ry="20" fill="#66BB6A" transform="rotate(-50 90 95)"/>
+
+  <!-- Mid background leaves center-right -->
+  <ellipse cx="280" cy="110" rx="42" ry="22" fill="#4CAF50" transform="rotate(30 280 110)"/>
+  <ellipse cx="300" cy="95" rx="38" ry="20" fill="#66BB6A" transform="rotate(50 300 95)"/>
+
+  <!-- ═══ PAPER BAG ═══ -->
+  <!-- Bag body -->
+  <path d="M128 148 L122 222 L268 222 L262 148 Z" fill="#D4A055"/>
+  <!-- Bag left face (darker) -->
+  <path d="M128 148 L122 222 L195 222 L195 148 Z" fill="#C8934A"/>
+  <!-- Bag top fold -->
+  <path d="M122 135 Q195 124 268 135 L262 150 Q195 140 128 150 Z" fill="#B8803A"/>
+  <!-- Bag crease lines -->
+  <line x1="195" y1="148" x2="195" y2="222" stroke="#B8803A" strokeWidth="1.5" opacity="0.5"/>
+  <!-- Bag handles -->
+  <path d="M152 135 Q142 95 162 84 Q175 76 178 100" stroke="#A07030" strokeWidth="4" strokeLinecap="round" fill="none"/>
+  <path d="M238 135 Q248 95 228 84 Q215 76 212 100" stroke="#A07030" strokeWidth="4" strokeLinecap="round" fill="none"/>
+
+  <!-- ═══ YELLOW BELL PEPPER (left, in front of bag) ═══ -->
+  <!-- Main body -->
+  <path d="M108 170 Q96 148 104 128 Q112 108 128 112 Q138 115 140 130 Q142 148 132 165 Q124 178 108 170 Z" fill="#FFC107"/>
+  <!-- Lobes -->
+  <path d="M108 170 Q102 155 108 142 Q114 130 120 135 Q126 140 124 155 Q120 168 108 170 Z" fill="#FFB300"/>
+  <path d="M128 165 Q134 150 132 136 Q130 122 124 120 Q120 130 122 148 Q124 162 128 165 Z" fill="#FFCA28"/>
+  <!-- Stem and cap -->
+  <path d="M118 112 Q116 102 119 95" stroke="#4CAF50" strokeWidth="3" strokeLinecap="round" fill="none"/>
+  <path d="M116 100 Q118 96 124 94 Q128 96 126 102" fill="#4CAF50"/>
+  <!-- Highlight -->
+  <ellipse cx="112" cy="136" rx="5" ry="9" fill="white" opacity="0.2" transform="rotate(-15 112 136)"/>
+
+  <!-- ═══ TOMATO (center-left, prominent) ═══ -->
+  <circle cx="178" cy="152" r="36" fill="#E53935"/>
+  <!-- Tomato shading -->
+  <path d="M155 138 Q162 128 178 128 Q194 128 200 138" fill="#EF5350" opacity="0.4"/>
+  <circle cx="178" cy="152" r="36" fill="none" stroke="#C62828" strokeWidth="0.5" opacity="0.3"/>
+  <!-- Stem leaves -->
+  <path d="M178 116 Q174 108 168 106 Q172 112 176 116" fill="#4CAF50"/>
+  <path d="M178 116 Q182 108 188 107 Q184 113 179 116" fill="#388E3C"/>
+  <path d="M178 116 Q176 106 178 100 Q180 106 178 116" fill="#4CAF50"/>
+  <path d="M178 116 Q170 110 166 112 Q170 116 178 116" fill="#66BB6A"/>
+  <path d="M178 116 Q186 110 190 113 Q186 117 178 116" fill="#66BB6A"/>
+  <!-- Highlight -->
+  <ellipse cx="165" cy="140" rx="8" ry="11" fill="white" opacity="0.18" transform="rotate(-20 165 140)"/>
+
+  <!-- ═══ BANANAS (right of tomato, arcing up-right) ═══ -->
+  <!-- Back banana -->
+  <path d="M218 170 Q244 120 272 108 Q282 116 265 148 Q252 170 232 178 Z" fill="#F9C846"/>
+  <!-- Front banana -->
+  <path d="M212 172 Q236 124 264 112 Q278 118 260 150 Q246 172 226 180 Z" fill="#FFEE55"/>
+  <!-- Third banana -->
+  <path d="M206 174 Q228 130 255 118 Q268 126 250 156 Q237 176 218 183 Z" fill="#F9C846"/>
+  <!-- Banana stem -->
+  <circle cx="270" cy="110" r="7" fill="#8D6E00"/>
+  <circle cx="270" cy="110" r="4" fill="#6D4C00"/>
+  <!-- Banana tips -->
+  <path d="M206 174 Q200 180 202 186" stroke="#C8A800" strokeWidth="2" strokeLinecap="round" fill="none"/>
+  <!-- Highlight on front banana -->
+  <path d="M222 142 Q238 130 252 126" stroke="white" strokeWidth="3" strokeLinecap="round" opacity="0.2"/>
+
+  <!-- ═══ AVOCADO (far right, halved) ═══ -->
+  <!-- Outer skin -->
+  <ellipse cx="316" cy="165" rx="38" ry="46" fill="#33691E" transform="rotate(12 316 165)"/>
+  <!-- Inner flesh -->
+  <ellipse cx="316" cy="168" rx="28" ry="36" fill="#8BC34A" transform="rotate(12 316 168)"/>
+  <!-- Pit -->
+  <ellipse cx="318" cy="172" rx="14" ry="16" fill="#8D6E00" transform="rotate(12 318 172)"/>
+  <ellipse cx="316" cy="170" rx="10" ry="12" fill="#6D4C00" transform="rotate(12 316 170)"/>
+  <!-- Flesh highlight -->
+  <ellipse cx="306" cy="154" rx="6" ry="10" fill="#C5E1A5" opacity="0.5" transform="rotate(12 306 154)"/>
+
+  <!-- ═══ CITRUS SPARKLE RAYS (above bag, above tomato) ═══ -->
+  <!-- Three short bold rays suggesting freshness/sunburst -->
+  <line x1="195" y1="88" x2="195" y2="72" stroke="#F9C846" strokeWidth="5" strokeLinecap="round"/>
+  <line x1="195" y1="88" x2="208" y2="76" stroke="#F9C846" strokeWidth="5" strokeLinecap="round"/>
+  <line x1="195" y1="88" x2="182" y2="76" stroke="#F9C846" strokeWidth="5" strokeLinecap="round"/>
+
+  <!-- ═══ GROUND SHADOW ═══ -->
+  <ellipse cx="195" cy="226" rx="105" ry="9" fill="#14283A" opacity="0.06"/>
+</svg>

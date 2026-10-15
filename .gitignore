@@ -1,0 +1,17 @@
+# Dependencies
+node_modules/
+
+# Production build output
+dist/
+
+# Secrets / local environment — NEVER commit real keys
+.env
+.env.*
+!.env.example
+
+# Generated build info / TypeScript incremental cache
+*.tsbuildinfo
+
+# OS / editor cruft
+.DS_Store
+*.local

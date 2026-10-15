@@ -1,0 +1,237 @@
+/* ============================================================
+   Review List (Screen 2)
+   Reuses tokens, ProgressSteps, NourishLogo, PrimaryButton.
+   ============================================================ */
+
+/* ── Viewport lock (this screen only) ──
+   The app shell normally lets each page grow to its natural height and the
+   whole document scrolls. For the Review List we instead pin the shell chain
+   to the viewport so the middle section can scroll internally while the
+   header, progress steps, and footer stay fixed. Scoped to .review-locked
+   (set by ReviewList on mount) so no other screen is affected. */
+.review-locked,
+.review-locked #root {
+  height: 100dvh;
+  min-height: 100dvh;
+  overflow: hidden;
+}
+
+.review-locked .app-shell {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.review-locked .app-shell__inner {
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.review {
+  display: flex;
+  flex-direction: column;
+  /* Fixed viewport height so the middle section scrolls, not the whole page */
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  padding: 0 var(--space-5);
+  background-color: var(--color-canvas);
+}
+
+/* ── Top nav (fixed) ── */
+.review__header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: calc(var(--space-4) + env(safe-area-inset-top, 0px)) 0 var(--space-2);
+}
+
+.review__back {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--min-tap);
+  height: var(--min-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink);
+  border-radius: var(--radius-tag);
+  transition: background-color var(--transition-fast);
+}
+
+.review__back:hover { background-color: var(--color-border); }
+.review__back:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+/* Keep the progress indicator fixed below the header */
+.review > .progress-steps {
+  flex: 0 0 auto;
+}
+
+/* ── Content (scrollable middle) ── */
+.review__content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-top: var(--space-4);
+}
+
+.review__headline {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.15;
+}
+
+.review__subhead {
+  margin-top: 6px;
+  font-size: 15px;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+/* ── List ── */
+.review__list {
+  list-style: none;
+  margin: var(--space-5) 0 0;
+  padding: 0;
+}
+
+/* ── Add another item ── */
+.review__add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: var(--space-4);
+  min-height: 52px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.review__add:hover {
+  background: rgba(0, 103, 71, 0.04);
+  border-color: var(--color-primary);
+}
+
+.review__add:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+.review__add-plus {
+  font-size: 20px;
+  line-height: 1;
+  font-weight: 700;
+}
+
+/* ── Allow brand substitutions toggle ── */
+.review__subs {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: #EEF6EC;
+  border-radius: var(--radius-card);
+}
+
+.review__subs-icon {
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.review__subs-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.review__subs-label {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-ink);
+  cursor: pointer;
+}
+
+.review__subs-desc {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--color-primary);
+  line-height: 1.35;
+}
+
+/* Switch */
+.review__switch {
+  width: 52px;
+  height: 30px;
+  min-width: 52px;
+  border-radius: 999px;
+  border: none;
+  background: #C3CBD1;
+  cursor: pointer;
+  position: relative;
+  transition: background-color var(--transition-fast);
+  padding: 0;
+}
+
+.review__switch--on {
+  background: var(--color-primary);
+}
+
+.review__switch:focus-visible {
+  outline: 3px solid var(--color-fresh);
+  outline-offset: 2px;
+}
+
+.review__switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform var(--transition-fast);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.review__switch--on .review__switch-thumb {
+  transform: translateX(22px);
+}
+
+/* ── Footer (fixed bottom area: toggle + CTA) ── */
+.review__footer {
+  flex: 0 0 auto;
+  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+}
+
+/* Prompt when a shopper tries to continue with an unresolved ambiguous item */
+.review__ambiguous-note {
+  margin: 0 0 var(--space-2);
+  font-size: 14px;
+  line-height: 1.35;
+  color: var(--color-error);
+  text-align: center;
+}

@@ -1,0 +1,485 @@
+/* ============================================================
+   Compare Prices (Screen 4) — simulated pricing, demo only.
+   ============================================================ */
+
+.compare {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 0 var(--space-5);
+  background-color: var(--color-canvas);
+}
+
+/* ── Top nav ── */
+.compare__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.compare__back {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--min-tap);
+  height: var(--min-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink);
+  border-radius: var(--radius-tag);
+}
+.compare__back:hover { background-color: var(--color-border); }
+.compare__back:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+/* ── Headline ── */
+.compare__headline {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+}
+
+.compare__subhead {
+  margin-top: 4px;
+  font-size: 17px;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+/* ── Comparison cards ── */
+.compare__cards {
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  /* Top padding gives the BEST VALUE / BEST MATCH badge (which sits at
+     top: -10px, overhanging the first card) room above it. */
+  padding: var(--space-3) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.compare__card {
+  position: relative;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-card);
+  cursor: pointer; /* the whole card opens that store's shopping trip */
+}
+
+.compare__card:focus-visible {
+  outline: 3px solid var(--color-fresh);
+  outline-offset: 2px;
+}
+
+.compare__card--best {
+  border-color: var(--color-fresh);
+  background: #F3F9EF;
+  box-shadow: 0 2px 14px rgba(119, 191, 67, 0.2);
+}
+
+.compare__badge {
+  position: absolute;
+  top: -10px;
+  left: 16px;
+  background: var(--color-citrus);
+  color: #5A4300;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: var(--radius-tag);
+}
+
+.compare__card-body {
+  position: relative; /* anchors the circular arrow within the body only, so it
+                         never overlaps the expanded breakdown subtotal below */
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4);
+}
+
+.compare__store { flex-shrink: 0; width: 84px; position: relative; z-index: 1; }
+
+.compare__store-name {
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.compare__figures {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  position: relative; /* sit above the layered bag illustration */
+  z-index: 1;
+  /* Reserve room for the circular arrow (36px) at the bottom-right so the
+     totals/coverage/"vs" text never runs underneath it. */
+  padding-right: 52px;
+}
+
+.compare__total {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1;
+}
+
+.compare__coverage {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.compare__save {
+  margin-top: 4px;
+  align-self: flex-start;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-tag);
+  line-height: 1.25;
+}
+
+.compare__save--good {
+  background: #DCEFD2;
+  color: var(--color-primary);
+}
+
+.compare__save--more {
+  background: #FBE4E0;
+  color: #B23A2E;
+}
+
+/* Grocery-bag illustration, ~50% larger and layered BEHIND the card content
+   (bottom-right). Decorative only; the price figures sit on top via z-index. */
+.compare__bag {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%); /* vertically centered within the card body */
+  width: 84px;  /* 56 × 1.5 */
+  height: 84px;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Retailer-detail arrow (circular) ── */
+.compare__arrow {
+  position: absolute;
+  right: 12px;
+  bottom: 12px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-white);
+  color: var(--color-primary);
+  box-shadow: 0 1px 6px rgba(20, 40, 58, 0.18);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2; /* stays above the layered bag illustration */
+}
+
+.compare__arrow:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+.compare__arrow-icon {
+  transition: transform var(--transition-fast);
+}
+.compare__arrow-icon--open { transform: rotate(90deg); }
+
+/* ── Partial-basket tag on the total ── */
+.compare__partial-tag {
+  font-size: 13px;
+  font-weight: 700;
+  color: #B23A2E;
+  letter-spacing: 0;
+}
+
+/* ── Itemized breakdown ── */
+.compare__breakdown {
+  padding: 0 var(--space-4) var(--space-4);
+}
+
+.compare__breakdown-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-2) 0 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.compare__breakdown-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.compare__breakdown-name { color: var(--color-ink); }
+.compare__breakdown-qty { color: var(--color-muted); font-size: 13px; }
+.compare__breakdown-price { font-weight: 600; color: var(--color-ink); white-space: nowrap; }
+
+.compare__breakdown-subtotal {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--color-border);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+/* ── Savings summary ── */
+.compare__summary {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: #EEF6EC;
+  border-radius: var(--radius-card);
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--color-ink);
+}
+
+/* Partial / limitation message when no store can fulfill the full list */
+.compare__summary--warn {
+  background: #FFF4E5;
+  border: 1.5px solid var(--color-citrus);
+  color: #7D5A00;
+}
+
+/* Closer-store tradeoff note (a slightly pricier but much nearer option) */
+.compare__tradeoff-note {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: #EEF4FB;
+  border: 1.5px solid #BBD6F2;
+  border-radius: var(--radius-card);
+  font-size: 13px;
+  color: #1C3D5A;
+  line-height: 1.4;
+}
+
+/* ── Clarification ── */
+.compare__clarify {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: #FFF8E1;
+  border: 1.5px solid var(--color-citrus);
+  border-radius: var(--radius-card);
+}
+
+.compare__clarify-intro {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7D6000;
+  margin-bottom: var(--space-3);
+  line-height: 1.4;
+}
+
+.compare__clarify-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  padding: var(--space-2) 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.compare__clarify-name {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-ink);
+}
+
+.compare__clarify-prompt {
+  font-size: 13px;
+  color: var(--color-muted);
+}
+
+.compare__clarify-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  width: 100%;
+}
+
+.compare__clarify-chip {
+  min-height: 36px;
+  padding: 0 14px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+}
+
+.compare__clarify-chip:hover { border-color: var(--color-primary); background: rgba(0, 103, 71, 0.05); }
+.compare__clarify-chip:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+/* ── Footer ── */
+.compare__footer { margin-top: auto; }
+
+.compare__disclaimer {
+  margin-top: var(--space-3);
+  padding: 0 var(--space-2) var(--space-2);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-muted);
+  text-align: center;
+  font-style: italic;
+}
+
+/* Required Google attribution — kept, de-emphasized so it stays unobtrusive. */
+.compare__attribution {
+  font-style: normal;
+  opacity: 0.85;
+  white-space: nowrap;
+}
+
+/* ── Distance label on cards ── */
+.compare__distance {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* Subtle distance disclosure above the footer. */
+.compare__distance-disclosure {
+  margin: var(--space-3) 0 0;
+  padding: 0 var(--space-2);
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* ── Discovery states (loading / empty / error / no-location) ── */
+.compare__state {
+  margin-top: var(--space-4);
+  padding: var(--space-4);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-card);
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.compare__state--warn {
+  background: #FFF4E5;
+  border-color: var(--color-citrus);
+  color: #7D5A00;
+}
+
+.compare__spinner {
+  width: 22px;
+  height: 22px;
+  border: 3px solid var(--color-border);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: compare-spin 0.8s linear infinite;
+}
+
+@keyframes compare-spin { to { transform: rotate(360deg); } }
+
+.compare__state-btn {
+  min-height: 40px;
+  padding: 0 var(--space-4);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.compare__state-btn:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+/* ── Nearby stores without demo pricing ── */
+.compare__unpriced {
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-card);
+}
+
+.compare__unpriced-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-ink);
+  margin-bottom: var(--space-2);
+}
+
+.compare__unpriced-list { list-style: none; margin: 0; padding: 0; }
+
+.compare__unpriced-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 0;
+  font-size: 14px;
+  color: var(--color-ink);
+}
+
+.compare__unpriced-dist { color: var(--color-muted); white-space: nowrap; }
+
+.compare__unpriced-note {
+  margin-top: var(--space-2);
+  font-size: 12px;
+  color: var(--color-muted);
+  line-height: 1.4;
+}
+
+/* ── Compact link to the other nearby stores (full list on Screen 5) ── */
+.compare__nearby-link {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: var(--space-4);
+  padding: 14px var(--space-4);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-card);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.compare__nearby-link svg {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.compare__nearby-link:hover {
+  background: rgba(0, 103, 71, 0.04);
+  border-color: var(--color-primary);
+}
+
+.compare__nearby-link:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }

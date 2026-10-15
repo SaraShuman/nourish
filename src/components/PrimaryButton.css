@@ -1,0 +1,65 @@
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--btn-height);
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-button);
+  border: none;
+  cursor: pointer;
+
+  background-color: var(--color-primary);
+  color: var(--color-white);
+
+  font-family: var(--font-family);
+  font-size: 17px;
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.01em;
+  line-height: 1;
+  text-decoration: none;
+
+  box-shadow: var(--shadow-button);
+  transition:
+    background-color var(--transition-fast),
+    transform var(--transition-fast),
+    box-shadow var(--transition-fast);
+
+  /* Accessible tap target */
+  min-width: var(--min-tap);
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary-btn--full {
+  width: 100%;
+}
+
+.primary-btn:hover:not(:disabled) {
+  background-color: #005538;
+  box-shadow: 0 6px 18px rgba(0, 103, 71, 0.30);
+}
+
+.primary-btn:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 2px 8px rgba(0, 103, 71, 0.20);
+}
+
+.primary-btn--disabled,
+.primary-btn:disabled {
+  background-color: var(--color-border);
+  color: var(--color-muted);
+  box-shadow: none;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.primary-btn__label {
+  flex: 1;
+  text-align: center;
+}
+
+.primary-btn__arrow {
+  flex-shrink: 0;
+  margin-left: var(--space-1);
+}

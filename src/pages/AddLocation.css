@@ -1,0 +1,284 @@
+/* ============================================================
+   Add Location (Screen 3)
+   Reuses tokens, ProgressSteps, NourishLogo, PrimaryButton.
+   Matches the approved mockup: illustration → headline → geo
+   button → ZIP → city link → radius → CTA + privacy.
+   ============================================================ */
+
+.location {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  padding: 0 var(--space-5);
+  background-color: var(--color-canvas);
+}
+
+/* ── Top nav ── */
+.location__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.location__back {
+  position: absolute;
+  left: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--min-tap);
+  height: var(--min-tap);
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--color-ink);
+  border-radius: var(--radius-tag);
+  transition: background-color var(--transition-fast);
+}
+
+.location__back:hover { background-color: var(--color-border); }
+.location__back:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+/* ── Content ── */
+.location__content {
+  padding-top: 0;
+  align-items: stretch;
+}
+
+/* Illustration — full-bleed: break out of the screen's horizontal padding
+   so it spans the entire width of the app column, then crop responsively. */
+.location__illustration {
+  width: 100%;
+  margin: var(--space-2) 0 var(--space-4);
+  /* Cancel the parent's horizontal padding (var(--space-5) each side). */
+  margin-left: calc(-1 * var(--space-5));
+  margin-right: calc(-1 * var(--space-5));
+  width: calc(100% + 2 * var(--space-5));
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.location__illustration-img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* ── Headline + supporting text ── */
+.location__headline {
+  font-size: 32px;
+  font-weight: 800;
+  color: var(--color-ink);
+  line-height: 1.15;
+  text-align: center;
+  letter-spacing: -0.2px;
+}
+
+.location__subhead {
+  margin-top: 6px;
+  font-size: 19px;
+  color: var(--color-muted);
+  line-height: 1.45;
+  text-align: center;
+  padding: 0 var(--space-4);
+}
+
+/* ── Use my current location ── */
+.location__geo-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  margin-top: var(--space-5);
+  min-height: var(--btn-height);
+  padding: 0 var(--space-5);
+  background: var(--color-primary);
+  color: var(--color-white);
+  border: none;
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--shadow-button);
+  transition: background-color var(--transition-fast), opacity var(--transition-fast);
+}
+
+.location__geo-btn:hover:not(:disabled) { background: #005740; }
+.location__geo-btn:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+.location__geo-btn:disabled { opacity: 0.7; cursor: default; }
+.location__geo-btn--located { background: var(--color-success); }
+
+.location__geo-icon { flex-shrink: 0; }
+
+.location__geo-error {
+  margin-top: var(--space-2);
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--color-error);
+  text-align: center;
+}
+
+/* Friendly (non-error) notice: location found but ZIP couldn't be determined */
+.location__geo-notice {
+  margin-top: var(--space-2);
+  font-size: 13px;
+  line-height: 1.35;
+  color: var(--color-primary);
+  text-align: center;
+}
+
+/* ── Divider text ── */
+.location__divider {
+  margin-top: var(--space-4);
+  text-align: center;
+  font-size: 15px;
+  color: var(--color-muted);
+}
+
+/* ── ZIP input ── */
+.location__zip-row {
+  position: relative;
+  margin-top: var(--space-3);
+}
+
+.location__zip-input {
+  width: 100%;
+  min-height: var(--btn-height);
+  padding: 0 44px 0 16px;
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-input);
+  font-family: var(--font-family);
+  font-size: 18px;
+  color: var(--color-ink);
+}
+
+.location__zip-input::placeholder { color: var(--color-muted); }
+
+.location__zip-input:focus-visible {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(0, 103, 71, 0.15);
+}
+
+.location__zip-input--error {
+  border-color: var(--color-error);
+}
+
+.location__zip-clear {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: var(--min-tap);
+  height: var(--min-tap);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+}
+
+.location__zip-clear:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+.location__zip-hint {
+  margin-top: 6px;
+  font-size: 13px;
+  color: var(--color-error);
+  text-align: center;
+}
+
+/* ── Use a different city ── */
+.location__city-link {
+  display: block;
+  margin: var(--space-3) auto 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  padding: var(--space-1) var(--space-2);
+}
+
+.location__city-link:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; border-radius: var(--radius-tag); }
+
+/* ── Shopping radius (secondary) ── */
+.location__radius {
+  margin-top: var(--space-5);
+  border: none;
+  padding: 0;
+}
+
+.location__radius-legend {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-muted);
+  text-align: center;
+  width: 100%;
+  margin-bottom: var(--space-2);
+}
+
+.location__radius-options {
+  display: flex;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.location__radius-chip {
+  min-width: 68px;
+  min-height: 40px;
+  padding: 0 var(--space-3);
+  background: var(--color-white);
+  border: 1.5px solid var(--color-border);
+  border-radius: var(--radius-button);
+  font-family: var(--font-family);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-ink);
+  cursor: pointer;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.location__radius-chip:hover { border-color: var(--color-primary); }
+.location__radius-chip:focus-visible { outline: 3px solid var(--color-fresh); outline-offset: 2px; }
+
+.location__radius-chip--selected {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-white);
+}
+
+/* ── Footer: CTA + privacy ── */
+.location__footer {
+  margin-top: auto;
+}
+
+.location__privacy {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 6px;
+  margin-top: var(--space-3);
+  padding: 0 var(--space-2) var(--space-2);
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--color-muted);
+  text-align: center;
+}
+
+.location__privacy-icon {
+  flex-shrink: 0;
+  margin-top: 0;
+  color: var(--color-primary);
+}

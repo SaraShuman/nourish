@@ -1,0 +1,19 @@
+/* App shell — centers the mobile column on wide screens */
+.app-shell {
+  min-height: 100dvh;
+  background-color: var(--color-canvas);
+  display: flex;
+  justify-content: center;
+}
+
+.app-shell__inner {
+  width: 100%;
+  max-width: var(--max-width-app);
+  /* No min-height here — each page declares its own height needs.
+     Placeholder pages use min-height: 100dvh; Welcome fills via flex: 1. */
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 0 40px rgba(20, 40, 58, 0.06);
+  background-color: var(--color-canvas);
+  overflow-x: hidden;
+}

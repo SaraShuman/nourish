@@ -1,0 +1,80 @@
+.progress-steps {
+  width: 100%;
+  padding: var(--space-4) 0 var(--space-2);
+}
+
+.progress-steps__list {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  list-style: none;
+  gap: 0;
+  width: 100%;
+}
+
+.progress-steps__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 1;
+}
+
+/* Horizontal connector line */
+.progress-steps__connector {
+  position: absolute;
+  top: 11px; /* centers on the 22px circle */
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background-color: var(--color-border);
+  z-index: 0;
+}
+
+.progress-steps__connector--filled {
+  background-color: var(--color-primary);
+}
+
+/* The circle indicator */
+.progress-steps__circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background-color: var(--color-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+  transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.progress-steps__item--active .progress-steps__circle {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+}
+
+.progress-steps__item--completed .progress-steps__circle {
+  border-color: var(--color-primary);
+  background-color: var(--color-primary);
+}
+
+/* Step label */
+.progress-steps__label {
+  margin-top: var(--space-1);
+  font-size: var(--font-size-caption);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.progress-steps__item--active .progress-steps__label {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.progress-steps__item--completed .progress-steps__label {
+  color: var(--color-primary);
+}

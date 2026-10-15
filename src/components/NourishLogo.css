@@ -1,0 +1,57 @@
+/* ── Full variant (Welcome screen) ── */
+.nourish-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  text-decoration: none;
+  user-select: none;
+}
+
+/* Two-leaf sprout mark */
+.nourish-logo__leaf {
+  display: block;
+  width: 36px;
+  height: 26px;
+  margin-bottom: 2px;
+}
+
+/* "nourish" — from extraction: ~45px equivalent at 390px viewport
+   (wordmark height 53px in 390px space × ~0.85 cap-height ratio) */
+.nourish-logo__wordmark {
+  font-size: 42px;
+  font-weight: 800;
+  color: var(--color-primary);  /* #006747 */
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+
+/* "Eat well. Spend less." — normal weight, muted, centered */
+.nourish-logo__tagline {
+  font-size: 15px;
+  font-style: normal;
+  font-weight: 400;
+  /* Match the wordmark green */
+  color: var(--color-primary);
+  line-height: 1.4;
+  margin-top: 1px;
+  letter-spacing: 0;
+}
+
+/* ── Compact variant (top nav on screens 2–5) ── */
+.nourish-logo--compact {
+  flex-direction: row;
+  align-items: center;
+  gap: 6px;
+}
+
+.nourish-logo--compact .nourish-logo__leaf {
+  width: 18px;
+  height: 12px;
+  margin-bottom: 0;
+}
+
+.nourish-logo--compact .nourish-logo__wordmark {
+  font-size: 20px;
+  letter-spacing: -0.5px;
+}
