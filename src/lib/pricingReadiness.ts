@@ -27,9 +27,11 @@ export function needsPackageChoice(item: GroceryItem): boolean {
 const WEIGHT_UNITS = new Set(['lb', 'lbs', 'oz', 'kg', 'g'])
 
 /**
- * A weight-sold item for which the shopper never stated an amount. The weight
- * is deferred (clarified at Compare), and we must not treat the default
- * quantity as requested. Does NOT block continuing.
+ * A weight-sold item for which the shopper never stated an amount. We now
+ * treat the default (1 of the item's unit) as a SUGGESTED, editable quantity
+ * rather than a blocker — the item is priced on the suggestion and labeled
+ * "Suggested" until the shopper adjusts it. Kept for display/styling only; it
+ * no longer prevents pricing.
  */
 export function needsWeightChoice(item: GroceryItem): boolean {
   return (
@@ -37,6 +39,16 @@ export function needsWeightChoice(item: GroceryItem): boolean {
     item.quantitySpecified !== true &&
     WEIGHT_UNITS.has(item.unit.toLowerCase())
   )
+}
+
+/**
+ * Whether the item's quantity is a SUGGESTED default (the shopper didn't state
+ * an amount) rather than one they explicitly entered. Used to label rows
+ * "Suggested · 1 lb" / "Suggested · 1 package". Ambiguous items are excluded
+ * (they need a product choice first, not a quantity suggestion).
+ */
+export function isSuggestedQuantity(item: GroceryItem): boolean {
+  return item.ambiguous !== true && item.quantitySpecified !== true
 }
 
 /**
@@ -56,10 +68,11 @@ export function itemsNeedingPackageChoice(items: GroceryItem[]): GroceryItem[] {
 }
 
 /**
- * Whether an item is ready to be priced definitively right now: not
- * generically ambiguous, no deferred package choice, and (for weight-sold
- * items) a weight the shopper actually specified.
+ * Whether an item is ready to be priced right now. A generically ambiguous
+ * item (needs a product choice) and a deferred package choice still block, but
+ * an unspecified WEIGHT no longer does — we price it on the suggested default
+ * (1 of its unit) and simply label it "Suggested" so nothing shows $0.00.
  */
 export function isPriceable(item: GroceryItem): boolean {
-  return !isGenericAmbiguous(item) && !needsPackageChoice(item) && !needsWeightChoice(item)
+  return !isGenericAmbiguous(item) && !needsPackageChoice(item)
 }

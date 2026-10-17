@@ -3,7 +3,7 @@ import type { GroceryItem, ProductCandidate } from '../data/types'
 import { CATALOG_BY_ID } from '../data/groceryCatalog'
 import { matchBrandedProduct } from '../lib/brandedProducts'
 import { splitNameAndSize, formatPackageLabel } from '../lib/offNormalize'
-import { needsWeightChoice } from '../lib/pricingReadiness'
+import { needsWeightChoice, isSuggestedQuantity } from '../lib/pricingReadiness'
 import { PASTA_SHAPES, pastaDisplayName } from '../lib/pastaType'
 import { GroceryIcon } from './GroceryIcon'
 import './GroceryItemCard.css'
@@ -63,17 +63,27 @@ export function buildProductDescription(item: GroceryItem): string {
  * Returns "" when there's nothing worth showing.
  */
 export function buildSummaryLine(item: GroceryItem): string {
+  // A deferred package choice (OFF sizes) still asks for a size.
   if (item.needsPackageChoice && !item.ambiguous) return 'Size not specified'
 
-  // Weight-sold items: show the REQUESTED weight (once specified) with the
-  // brand, or "Weight not specified" until the shopper states one. We never
-  // present an OFF package weight as the requested amount.
-  if (needsWeightChoice(item)) {
-    return item.brand ? `${item.brand} · Weight not specified` : 'Weight not specified'
-  }
-  if (isWeightUnit(item.unit) && item.quantitySpecified) {
-    const weight = `${formatQtyValue(item.quantity)} ${item.unit}`
-    return item.brand ? `${weight} · ${item.brand}` : weight
+  // A RESOLVED OFF product (carries a barcode) shows its package description,
+  // not a quantity suggestion — the shopper chose a specific product/size.
+  const isResolvedOff = item.recognized && !item.catalogId && Boolean(item.barcode?.trim())
+  if (!isResolvedOff) {
+    // Quantity the shopper never stated → a SUGGESTED, editable default. We show
+    // "Suggested · 1 lb" (weight) or "Suggested · 1 bag" (packaged), with the
+    // brand when present. The shopper can nudge the stepper to make it explicit.
+    if (isSuggestedQuantity(item)) {
+      const amount = `${formatQtyValue(item.quantity)} ${item.unit}`
+      const suggested = `Suggested · ${amount}`
+      return item.brand ? `${item.brand} · ${suggested}` : suggested
+    }
+
+    // Explicit weight the shopper stated.
+    if (isWeightUnit(item.unit) && item.quantitySpecified) {
+      const weight = `${formatQtyValue(item.quantity)} ${item.unit}`
+      return item.brand ? `${weight} · ${item.brand}` : weight
+    }
   }
 
   const desc = buildProductDescription(item)
@@ -273,7 +283,7 @@ export function GroceryItemCard({
           {summaryLine && (
             <span
               className={`grocery-card__summary-detail${
-                (item.needsPackageChoice && !item.ambiguous) || needsWeightChoice(item)
+                (item.needsPackageChoice && !item.ambiguous) || isSuggestedQuantity(item)
                   ? ' grocery-card__summary-detail--unspecified'
                   : ''
               }`}
@@ -305,14 +315,14 @@ export function GroceryItemCard({
           </button>
           <span
             className={`grocery-card__step-value${
-              needsWeightChoice(item) ? ' grocery-card__step-value--unspecified' : ''
+              isSuggestedQuantity(item) ? ' grocery-card__step-value--unspecified' : ''
             }`}
             aria-live="polite"
           >
-            {/* While a weight is unspecified, show a neutral "–" instead of a
-                concrete "1", so it never contradicts the "Weight not specified"
-                prompt. The first +/- tap commits an explicit weight. */}
-            {needsWeightChoice(item) ? '–' : formatQty(item.quantity)}
+            {/* A suggested (unspecified) quantity shows its editable default,
+                dimmed, matching the "Suggested · 1 lb" label. A +/- tap commits
+                it as the shopper's explicit amount. */}
+            {formatQty(item.quantity)}
             {isWeightUnit(item.unit) && (
               <span className="grocery-card__step-unit"> {item.unit}</span>
             )}

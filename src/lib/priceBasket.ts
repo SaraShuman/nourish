@@ -5,6 +5,7 @@
  */
 import type { GroceryItem } from '../data/types'
 import { STORES, getSimulatedPrice, isPricingUnitCompatible, type StoreId } from '../data/pricing'
+import { estimateUnitPrice } from '../data/priceEstimator'
 import { isPriceable } from './pricingReadiness'
 
 export interface BasketLine {
@@ -13,11 +14,17 @@ export interface BasketLine {
   quantity: number
   /** The shopper's chosen unit (e.g. "lb", "dozen", "each"). */
   unit: string
-  /** Per-unit simulated price, or undefined when the store lacks the item. */
+  /** Per-unit simulated price, or undefined when the item couldn't be priced. */
   unitPrice?: number
   /** quantity × unitPrice, or undefined when unavailable. */
   lineTotal?: number
   available: boolean
+  /**
+   * True when the price came from the category/unit ESTIMATOR rather than the
+   * hand-tuned catalog table. Used only to keep disclosures honest — never to
+   * imply a verified price.
+   */
+  estimated: boolean
 }
 
 export interface StoreBasket {
@@ -88,15 +95,21 @@ export function priceBasket(items: GroceryItem[], store: StoreId): StoreBasket {
   let covered = 0
 
   const lines: BasketLine[] = basket.map((it) => {
-    const rawPrice = getSimulatedPrice(it.catalogId, store)
-    // A line is priceable only when a demo price exists AND the shopper's unit
-    // matches the unit that price assumes. We never convert between
-    // incomparable units (e.g. per-lb price × a "bag" quantity) — that would be
-    // a misleading number, so such lines are left unpriced instead.
-    const unitCompatible = isPricingUnitCompatible(it.catalogId, it.unit)
-    const available = rawPrice !== undefined && unitCompatible
-    const unitPrice = available ? rawPrice : undefined
-    const lineTotal = available ? round2(rawPrice! * it.quantity) : undefined
+    // 1) Prefer the hand-tuned catalog price when it exists AND the shopper's
+    //    unit matches the unit that price assumes (no misleading cross-unit
+    //    math). This preserves the curated demo values exactly.
+    const catalogPrice = getSimulatedPrice(it.catalogId, store)
+    const catalogUsable = catalogPrice !== undefined && isPricingUnitCompatible(it.catalogId, it.unit)
+
+    // 2) Otherwise fall back to a deterministic category/unit ESTIMATE, priced
+    //    in the shopper's requested unit (e.g. a "bunch" of bananas as a bunch).
+    //    Only a truly empty/uninterpretable item yields no estimate.
+    const estimate = catalogUsable ? null : estimateUnitPrice(it, store)
+
+    const unitPrice = catalogUsable ? catalogPrice : (estimate ?? undefined)
+    const available = unitPrice !== undefined
+    const estimated = available && !catalogUsable
+    const lineTotal = available ? round2(unitPrice! * it.quantity) : undefined
     if (available) {
       total = round2(total + lineTotal!)
       covered += 1
@@ -109,6 +122,7 @@ export function priceBasket(items: GroceryItem[], store: StoreId): StoreBasket {
       unitPrice,
       lineTotal,
       available,
+      estimated,
     }
   })
 

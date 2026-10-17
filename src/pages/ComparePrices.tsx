@@ -328,7 +328,7 @@ export function ComparePrices() {
           View my shopping trip
         </PrimaryButton>
         <p className="compare__disclaimer">
-          Demo prices · Actual store locations
+          Demo price estimates · Actual store locations · Prices and inventory are not verified
           <span className="compare__attribution"> · Powered by Google</span>
         </p>
       </footer>

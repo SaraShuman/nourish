@@ -72,63 +72,61 @@ describe('Fix 1 — parser does not invent a quantity', () => {
   })
 })
 
-describe('Fix 1 — enrichment never shows an OFF package weight as requested', () => {
-  it('keeps "Perdue · Weight not specified" and does not adopt the 5 lb pack', async () => {
+describe('Fix 1 — suggested weight, never an OFF package weight', () => {
+  it('shows "Perdue · Suggested · 1 lb" and does not adopt the 5 lb pack', async () => {
     const original = parseGroceryList('Perdue chicken breast')[0]
     const enriched = await enrichItem(original, {
       fragment: original.sourceText ?? original.name,
       fetchImpl: brandSearchFetch(),
     })
-    // Barcode metadata kept internally; package size NOT adopted for a weight item.
+    // Barcode metadata kept internally; the OFF 5 lb size is NOT adopted.
     expect(enriched.barcode).toBe('00212')
     expect(enriched.packageSize).toBeUndefined()
     expect(enriched.quantitySpecified).toBeFalsy()
 
     renderStateful(enriched)
-    expect(screen.getByText('Perdue · Weight not specified')).toBeInTheDocument()
+    // Suggested default, clearly labeled; never the OFF 5 lb pack.
+    expect(screen.getByText('Perdue · Suggested · 1 lb')).toBeInTheDocument()
     expect(screen.queryByText(/5 lb/i)).not.toBeInTheDocument()
   })
 
-  it('bananas shows "Weight not specified" (no brand) and is deferred, not blocking', async () => {
+  it('bananas shows "Suggested · 1 lb" (no brand) and is priceable', async () => {
     const original = parseGroceryList('bananas')[0]
     const enriched = await enrichItem(original, {
       fragment: original.sourceText ?? original.name,
       fetchImpl: brandSearchFetch(),
     })
     renderStateful(enriched)
-    expect(screen.getByText('Weight not specified')).toBeInTheDocument()
-    // Deferred to Compare, never blocks continuing.
+    expect(screen.getByText('Suggested · 1 lb')).toBeInTheDocument()
+    // Still a suggestion for labeling, but now priceable and never blocking.
     expect(needsWeightChoice(enriched)).toBe(true)
-    expect(isPriceable(enriched)).toBe(false)
+    expect(isPriceable(enriched)).toBe(true)
     expect(itemsBlockingContinue([enriched])).toHaveLength(0)
   })
 })
 
-describe('Fix 1 — stepper establishes an explicit weight with a visible unit', () => {
-  it('shows the unit, and first interaction commits an explicit weight', () => {
+describe('Fix 1 — stepper shows the suggested default and commits on interaction', () => {
+  it('shows the suggested 1 lb and the first interaction makes it explicit', () => {
     const chicken = parseGroceryList('Perdue chicken breast')[0]
     renderStateful(chicken)
 
-    // Before interaction: "Weight not specified", and the stepper shows the
-    // unit with a neutral "–" placeholder (not a concrete "1") so it doesn't
-    // contradict the prompt.
-    expect(screen.getByText('Perdue · Weight not specified')).toBeInTheDocument()
+    // Before interaction: labeled "Suggested · 1 lb", stepper shows a dimmed 1 lb.
+    expect(screen.getByText('Perdue · Suggested · 1 lb')).toBeInTheDocument()
     const group = screen.getByRole('group', { name: /quantity for/i })
     expect(within(group).getByText('lb')).toBeInTheDocument()
-    expect(within(group).getByText('–')).toBeInTheDocument()
-    expect(within(group).queryByText('1')).not.toBeInTheDocument()
+    expect(within(group).getByText('1')).toBeInTheDocument()
 
-    // First "+" commits an explicit 1 lb.
+    // First "+" commits an explicit 1 lb (no longer "Suggested").
     fireEvent.click(within(group).getByRole('button', { name: /increase quantity/i }))
     expect(screen.getByText('1 lb · Perdue')).toBeInTheDocument()
-    expect(screen.queryByText(/weight not specified/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/suggested/i)).not.toBeInTheDocument()
 
     // Subsequent "+" adjusts the weight.
     fireEvent.click(screen.getByRole('group', { name: /quantity for/i }).querySelector('button:last-child')!)
     expect(screen.getByText('1.5 lb · Perdue')).toBeInTheDocument()
   })
 
-  it('first "−" from unspecified commits 0.5 lb', () => {
+  it('first "−" from the suggested default commits 0.5 lb', () => {
     const bananas = parseGroceryList('bananas')[0]
     renderStateful(bananas)
     const group = screen.getByRole('group', { name: /quantity for/i })

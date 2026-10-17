@@ -4,7 +4,7 @@
  * navigation to Nearby Stores, and state persistence.
  */
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { render, screen, fireEvent, within, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { createMemoryRouter, RouterProvider } from 'react-router-dom'
 import { ComparePrices } from '../pages/ComparePrices'
 import { resetListFromInput } from '../hooks/useGroceryList'
@@ -74,8 +74,10 @@ describe('ComparePrices — cards & recommendation', () => {
     renderCompare()
     expect(screen.getByRole('heading', { name: /compare prices/i })).toBeInTheDocument()
     expect(screen.getByText(/ranked by lowest estimated total/i)).toBeInTheDocument()
-    // Concise disclaimer replaces the long one; Google attribution preserved.
-    expect(screen.getByText(/demo prices · actual store locations/i)).toBeInTheDocument()
+    // One concise disclosure; Google attribution preserved.
+    expect(
+      screen.getByText(/demo price estimates · actual store locations · prices and inventory are not verified/i)
+    ).toBeInTheDocument()
     expect(screen.getByText(/powered by google/i)).toBeInTheDocument()
   })
 
@@ -215,44 +217,39 @@ describe('ComparePrices — retailer breakdown arrow', () => {
   })
 })
 
-describe('ComparePrices — partial basket honesty', () => {
-  it('highlights BEST MATCH (not full-list BEST VALUE) and explains unpriced items', async () => {
-    // "diet coke" has no catalog price → every store is partial.
+describe('ComparePrices — estimates fill gaps (no false partials)', () => {
+  it('prices a branded/uncatalogued item by estimate → full BEST VALUE, no warnings', async () => {
+    // "diet coke" has no catalog price, but is interpretable → estimated, so
+    // the basket is complete: BEST VALUE, no partial warning, no red boxes.
     resetListFromInput('bananas 2 lb, diet coke')
     seedLocation()
     stubDiscovery(['Ralphs', 'Vons'])
     renderCompare()
     await screen.findByText('Ralphs')
-    // The recommended store is still highlighted, but as a partial-aware
-    // "BEST MATCH" — never a full-list BEST VALUE claim.
-    expect(screen.getByText('BEST MATCH')).toBeInTheDocument()
-    expect(screen.queryByText('BEST VALUE')).not.toBeInTheDocument()
-    // No full-list "lowest total" claim; the card notes totals exclude unpriced.
-    expect(screen.queryByText(/lowest simulated total/i)).not.toBeInTheDocument()
-    expect(screen.queryByText(/less than/i)).not.toBeInTheDocument() // no savings claim when partial
-    expect(screen.getByText(/total excludes items we couldn’t price/i)).toBeInTheDocument()
-    expect(screen.getByText(/no store can fulfill your full list/i)).toBeInTheDocument()
-    expect(screen.getByText(/diet coke/i)).toBeInTheDocument()
-    expect(screen.getAllByText(/partial/i).length).toBeGreaterThan(0)
+    expect(screen.getByText('BEST VALUE')).toBeInTheDocument()
+    expect(screen.queryByText('BEST MATCH')).not.toBeInTheDocument()
+    // The partial-coverage warning and "couldn’t price" box are gone.
+    expect(screen.queryByText(/no store can fulfill your full list/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/total excludes items we couldn’t price/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/\bpartial\b/i)).not.toBeInTheDocument()
+    // The one honest disclosure is present.
+    expect(
+      screen.getByText(/demo price estimates · actual store locations · prices and inventory are not verified/i)
+    ).toBeInTheDocument()
   })
 })
 
-describe('ComparePrices — just-in-time clarification', () => {
-  it('blocks definitive totals until an unspecified weight is clarified', async () => {
-    resetListFromInput('chicken breast') // no weight → needs clarification
+describe('ComparePrices — suggested quantities price immediately', () => {
+  it('prices a weight-only item on its suggested default — no clarify gate', async () => {
+    resetListFromInput('chicken breast') // no weight → suggested 1 lb
     seedLocation()
     stubDiscovery(['Ralphs'])
     renderCompare()
 
-    // Clarification UI shown; no cards yet. Copy reads as a quick step.
-    expect(await screen.findByText(/almost there — just pick an amount/i)).toBeInTheDocument()
-    expect(screen.queryByText('BEST VALUE')).not.toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /view my shopping trip/i })).toBeDisabled()
-
-    const section = screen.getByLabelText(/clarify items for pricing/i)
-    fireEvent.click(within(section).getByRole('button', { name: /^2 lb$/i }))
-
+    // Cards appear right away (suggested 1 lb is priced); no clarify prompt,
+    // and the CTA is enabled.
     expect(await screen.findByText('BEST VALUE')).toBeInTheDocument()
+    expect(screen.queryByText(/almost there — just pick an amount/i)).not.toBeInTheDocument()
     expect(screen.getByRole('button', { name: /view my shopping trip/i })).toBeEnabled()
   })
 })

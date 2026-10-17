@@ -35,112 +35,131 @@ describe('priceBasket — totals from real quantities', () => {
     expect(b.complete).toBe(true)
   })
 
-  it('reports missing products honestly without inventing availability', () => {
-    // "rice" exists at all three; invent a non-priced item to be missing:
+  it('estimates items not in the catalog (no $0.00, no false "missing")', () => {
     const items = [
-      item({ catalogId: 'bananas', quantity: 1 }),
-      item({ catalogId: 'nonexistent-item', quantity: 1 }),
+      item({ catalogId: 'bananas', quantity: 1 }), // catalog price
+      item({ catalogId: 'quinoa-xyz', name: 'Quinoa', quantity: 1, unit: 'bag', category: 'pantry' }),
     ]
     const b = priceBasket(items, 'ralphs')
     expect(b.totalCount).toBe(2)
-    expect(b.coveredCount).toBe(1) // only bananas priced
-    expect(b.complete).toBe(false)
-    const missing = b.lines.find((l) => l.itemId === 'nonexistent-item')!
-    expect(missing.available).toBe(false)
-    expect(missing.lineTotal).toBeUndefined()
+    expect(b.coveredCount).toBe(2) // both priced — the second by estimate
+    expect(b.complete).toBe(true)
+    const bananas = b.lines.find((l) => l.name.toLowerCase().includes('banana'))!
+    const quinoa = b.lines.find((l) => l.name === 'Quinoa')!
+    expect(bananas.estimated).toBe(false) // from the curated catalog table
+    expect(quinoa.estimated).toBe(true) // from the category estimator
+    expect(quinoa.lineTotal).toBeGreaterThan(0)
   })
 })
 
-describe('priceBasket — unit compatibility (no misleading cross-unit math)', () => {
-  it('prices a line only when the unit matches the product pricing unit', () => {
-    const items = [
-      item({ catalogId: 'bananas', quantity: 3, unit: 'lb' }), // per lb → priced
-      item({ catalogId: 'bananas', quantity: 2, unit: 'bunch', id: 'b2' }), // per lb ≠ bunch
-    ]
-    const b = priceBasket(items, 'ralphs')
-    const perLb = b.lines.find((l) => l.unit === 'lb')!
-    const perBunch = b.lines.find((l) => l.unit === 'bunch')!
-    expect(perLb.available).toBe(true)
-    expect(perLb.lineTotal).toBe(round(getSimulatedPrice('bananas', 'ralphs')! * 3))
-    // Incompatible unit → NOT multiplied, left unpriced (never a bogus total).
-    expect(perBunch.available).toBe(false)
-    expect(perBunch.lineTotal).toBeUndefined()
+describe('priceBasket — catalog price vs. estimate by unit', () => {
+  it('uses the exact catalog price when the unit matches the pricing unit', () => {
+    const b = priceBasket([item({ catalogId: 'bananas', quantity: 3, unit: 'lb' })], 'ralphs')
+    const line = b.lines[0]
+    expect(line.estimated).toBe(false)
+    expect(line.lineTotal).toBe(round(getSimulatedPrice('bananas', 'ralphs')! * 3))
   })
 
-  it('leaves eggs unpriced when requested per "each" (price is per dozen)', () => {
+  it('estimates (in the requested unit) when the unit differs from the catalog unit', () => {
+    // bananas is priced per lb; a "bunch" is estimated as a bunch, not per lb.
+    const b = priceBasket([item({ catalogId: 'bananas', quantity: 1, unit: 'bunch' })], 'ralphs')
+    const line = b.lines[0]
+    expect(line.available).toBe(true)
+    expect(line.estimated).toBe(true) // fell back to the estimator
+    expect(line.lineTotal).toBeGreaterThan(0)
+  })
+
+  it('estimates eggs-by-each rather than leaving it unpriced', () => {
     const b = priceBasket([item({ catalogId: 'eggs', quantity: 6, unit: 'each' })], 'ralphs')
-    expect(b.coveredCount).toBe(0)
-    expect(b.lines[0].available).toBe(false)
+    expect(b.coveredCount).toBe(1)
+    expect(b.lines[0].available).toBe(true)
+    expect(b.lines[0].estimated).toBe(true)
   })
 
-  it('prices an "each"-priced product requested in "each" (avocados)', () => {
+  it('still uses the exact catalog price for an each-priced product (avocados)', () => {
     const b = priceBasket([item({ catalogId: 'avocados', quantity: 4, unit: 'each' })], 'ralphs')
-    expect(b.lines[0].available).toBe(true)
+    expect(b.lines[0].estimated).toBe(false)
     expect(b.lines[0].lineTotal).toBe(round(getSimulatedPrice('avocados', 'ralphs')! * 4))
   })
 
-  it('treats "lbs" as "lb" (normalized) so it still prices', () => {
+  it('treats "lbs" as "lb" (normalized) so it uses the catalog price', () => {
     const b = priceBasket([item({ catalogId: 'chicken-breast', quantity: 2, unit: 'lbs' })], 'ralphs')
-    expect(b.lines[0].available).toBe(true)
+    expect(b.lines[0].estimated).toBe(false)
   })
 
-  it('an incompatible-unit item is reported as unpriced across all stores', () => {
-    // pasta is priced per box; requesting it per lb should price nowhere.
+  it('a cross-unit catalog item is still priced (by estimate) across all stores', () => {
+    // pasta is priced per box; requesting it per lb now estimates rather than
+    // leaving a gap — the basket stays complete.
     const r = comparePrices([item({ catalogId: 'pasta', quantity: 1, unit: 'lb' })])
-    expect(r.anyComplete).toBe(false)
-    expect(r.unpricedItemNames).toContain('pasta')
+    expect(r.anyComplete).toBe(true)
+    expect(r.unpricedItemNames).toHaveLength(0)
   })
 })
 
 describe('basket counts the full resolved list (missing items shown, not dropped)', () => {
-  it('includes resolved items a store cannot price, counting them in the denominator', () => {
+  it('prices every resolved item — catalog where available, estimate otherwise', () => {
     const items = [
-      item({ catalogId: 'bananas', quantity: 2, unit: 'lb' }), // priced
-      item({ catalogId: 'eggs', quantity: 1, unit: 'dozen' }), // priced
-      // Resolved branded item with no catalogId & no simulated price → counted
-      // as a line, shown unavailable, NOT silently dropped.
+      item({ catalogId: 'bananas', quantity: 2, unit: 'lb' }), // catalog
+      item({ catalogId: 'eggs', quantity: 1, unit: 'dozen' }), // catalog
+      // Resolved branded item with no catalogId & no catalog price → ESTIMATED,
+      // not left as a $0 gap.
       {
         ...item({ catalogId: 'x' }),
         id: 'diet-coke',
         catalogId: null,
         name: 'Diet Coke',
+        category: 'beverages',
         unit: 'each',
         recognized: true,
         quantitySpecified: true,
       } as GroceryItem,
-      // A catalog item that simply isn't in the demo price table.
-      item({ catalogId: 'garlic', name: 'Garlic', quantity: 1, unit: 'each' }),
+      // A catalog item that simply isn't in the demo price table → ESTIMATED.
+      item({ catalogId: 'garlic', name: 'Garlic', quantity: 1, unit: 'each', category: 'produce' }),
     ]
     const b = priceBasket(items, 'ralphs')
-    // All four resolved items are counted…
+    // All four counted AND priced → complete basket, no gaps.
     expect(b.totalCount).toBe(4)
-    // …but only the two with a simulated price are available.
-    expect(b.coveredCount).toBe(2)
-    expect(b.complete).toBe(false)
+    expect(b.coveredCount).toBe(4)
+    expect(b.complete).toBe(true)
     const dietCoke = b.lines.find((l) => l.itemId === 'diet-coke')!
-    expect(dietCoke.available).toBe(false)
+    expect(dietCoke.available).toBe(true)
+    expect(dietCoke.estimated).toBe(true)
   })
 
-  it('does NOT count items still awaiting clarification', () => {
+  it('prices an unspecified-weight item on its suggested default (not excluded)', () => {
     const items = [
       item({ catalogId: 'bananas', quantity: 1, unit: 'lb' }),
-      item({ catalogId: 'chicken-breast', unit: 'lb', quantitySpecified: false }), // weight unspecified
+      item({ catalogId: 'chicken-breast', unit: 'lb', quantitySpecified: false }), // suggested 1 lb
     ]
     const b = priceBasket(items, 'ralphs')
-    expect(b.totalCount).toBe(1) // chicken excluded until weight is given
+    // The suggested-weight item is now counted AND priced (no $0.00 gap).
+    expect(b.totalCount).toBe(2)
+    expect(b.coveredCount).toBe(2)
+    expect(b.complete).toBe(true)
+  })
+
+  it('still excludes a genuinely ambiguous item (needs a product choice)', () => {
+    const items = [
+      item({ catalogId: 'bananas', quantity: 1, unit: 'lb' }),
+      { ...item({ catalogId: 'x' }), catalogId: null, name: 'Chicken', ambiguous: true } as GroceryItem,
+    ]
+    const b = priceBasket(items, 'ralphs')
+    expect(b.totalCount).toBe(1) // ambiguous "chicken" excluded until clarified
   })
 })
 
 describe('comparableItems — exclusions', () => {
-  it('excludes items needing weight/package clarification and non-catalog rows', () => {
+  it('includes suggested-weight catalog items; still excludes ambiguous rows', () => {
     const items = [
       item({ catalogId: 'bananas' }),
-      item({ catalogId: 'chicken-breast', unit: 'lb', quantitySpecified: false }), // weight unspecified
-      { ...item({ catalogId: 'x' }), catalogId: null, recognized: false } as GroceryItem,
+      item({ catalogId: 'chicken-breast', unit: 'lb', quantitySpecified: false }), // suggested → priceable
+      { ...item({ catalogId: 'x' }), catalogId: null, name: 'Chicken', ambiguous: true } as GroceryItem,
     ]
     const comparable = comparableItems(items)
-    expect(comparable.map((i) => i.catalogId)).toEqual(['bananas'])
-    expect(itemsNeedingClarification(items).some((i) => i.name === 'chicken-breast')).toBe(true)
+    // Both catalog items are comparable now (suggested weight no longer blocks).
+    expect(comparable.map((i) => i.catalogId).sort()).toEqual(['bananas', 'chicken-breast'])
+    // The ambiguous row still needs clarification before pricing.
+    expect(itemsNeedingClarification(items).length).toBe(0) // ambiguous handled separately
   })
 })
 
@@ -171,19 +190,35 @@ describe('comparePrices — single lowest-complete ranking', () => {
     expect(r.recommendedId).toBe('ralphs') // cheaper of the two
   })
 
-  it('when no store covers the full list, recommends widest coverage and flags partial', () => {
-    // "oranges" has no price at any store → every basket is incomplete.
-    const partialList = [
+  it('a catalog item missing from the price table is now estimated → complete basket', () => {
+    // "oranges" has no catalog price, but is interpretable → estimated, so the
+    // basket is complete (no partial warning, no gap).
+    const list = [
       item({ catalogId: 'bananas', quantity: 2, unit: 'lb' }),
-      item({ catalogId: 'oranges', quantity: 1, unit: 'lb' }),
+      item({ catalogId: 'oranges', name: 'Oranges', quantity: 1, unit: 'lb', category: 'produce' }),
     ]
-    const r = comparePrices(partialList, ['ralphs', 'aldi'])
-    expect(r.anyComplete).toBe(false)
+    const r = comparePrices(list, ['ralphs', 'aldi'])
+    expect(r.anyComplete).toBe(true)
+    expect(r.unpricedItemNames).toHaveLength(0)
     const rec = r.baskets.find((b) => b.storeId === r.recommendedId)!
-    expect(rec.complete).toBe(false)
-    // Among the partial (bananas-only) baskets, the cheapest is recommended —
-    // never presented as a complete basket.
-    expect(r.unpricedItemNames).toContain('oranges')
+    expect(rec.complete).toBe(true)
+  })
+
+  it('an ordinary list of varied/unknown items prices completely (no gaps)', () => {
+    // The kinds of items that used to produce $0.00 / partial warnings.
+    const list = [
+      item({ catalogId: 'chicken-thighs', name: 'Chicken Thighs', quantity: 2, unit: 'lb', category: 'meat' }),
+      item({ catalogId: 'coffee', name: 'Coffee', quantity: 1, unit: 'bag', category: 'beverages' }),
+      item({ catalogId: 'water', name: 'Bottled Water', quantity: 1, unit: 'case', category: 'beverages' }),
+      item({ catalogId: 'bananas', name: 'Bananas', quantity: 1, unit: 'bunch', category: 'produce' }),
+    ]
+    const r = comparePrices(list, ['ralphs', 'aldi', 'whole-foods'])
+    expect(r.anyComplete).toBe(true)
+    expect(r.unpricedItemNames).toHaveLength(0)
+    for (const b of r.baskets) {
+      expect(b.complete).toBe(true)
+      expect(b.total).toBeGreaterThan(0) // never a $0.00 "valid" total
+    }
   })
 
   it('surfaces a closer-store tradeoff when one is slightly pricier but much nearer', () => {

@@ -77,17 +77,19 @@ describe('NearbyStores — chosen store trip', () => {
     expect(screen.getAllByText(/^\$\d/).length).toBeGreaterThan(0)
   })
 
-  it('labels an unpriced list item "No demo price available" (not availability)', async () => {
-    // "garlic" is a catalog item with no demo price → unpriced at any store.
+  it('estimates an uncatalogued list item instead of showing "No demo price available"', async () => {
+    // "garlic" has no catalog price, but is interpretable → estimated, so the
+    // shopping list prices it rather than leaving a gap.
     resetListFromInput('bananas 2 lb, garlic 1 each')
     seed('ralphs', ['Ralphs'])
     renderNearby()
     await screen.findByRole('heading', { name: /your list at ralphs/i })
-    expect(screen.getByText(/no demo price available/i)).toBeInTheDocument()
-    // We never say "not carried here" — that would imply real inventory.
+    expect(screen.queryByText(/no demo price available/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/not carried here/i)).not.toBeInTheDocument()
-    // Partial total is labeled with "priced".
-    expect(screen.getByText(/of 2 items priced/i)).toBeInTheDocument()
+    // Both items priced → a plain "Estimated total" (no partial "X of Y").
+    expect(screen.getByText(/^estimated total$/i)).toBeInTheDocument()
+    // Both list rows show a dollar amount.
+    expect(screen.getAllByText(/^\$\d/).length).toBeGreaterThanOrEqual(2)
   })
 
   it('lists ALL discovered stores (priced + unpriced) with a count and badges', async () => {

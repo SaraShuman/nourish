@@ -104,7 +104,7 @@ describe('ComparePrices page', () => {
       </MemoryRouter>
     )
     expect(
-      screen.getByText(/demo prices · actual store locations/i)
+      screen.getByText(/demo price estimates · actual store locations · prices and inventory are not verified/i)
     ).toBeInTheDocument()
   })
 })
